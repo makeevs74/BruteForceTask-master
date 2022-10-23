@@ -5,97 +5,118 @@ class ViewController: UIViewController {
 
 // MARK: - Outlets -
 
-    @IBOutlet weak var button: UIButton!
+    private lazy var buttonChangeColor: UIButton = {
+        let button = UIButton(type: .system)
+        button.setTitle("Change color", for: .normal)
+        button.addTarget(self, action: #selector(onBut), for: .touchUpInside)
+        button.titleLabel?.font = UIFont.systemFont(ofSize: 25)
+        button.setTitleColor(.systemBlue, for: .normal)
+        return button
+    }()
 
     var isBlack: Bool = true {
         didSet {
             if isBlack {
                 self.view.backgroundColor = .white
+                self.label.textColor = .black
+                self.textField.backgroundColor = .white
             } else {
                 self.view.backgroundColor = .black
+                self.label.textColor = .white
+                self.textField.backgroundColor = .black
+                self.textField.borderStyle = .line
             }
         }
     }
     
-    @IBAction func onBut(_ sender: Any) {
+    @objc func onBut() {
         isBlack.toggle()
     }
 
     private lazy var buttonGeneratePassowrd: UIButton = {
-        let button = UIButton()
-        button.titleLabel?.text = "Generate password"
+        let button = UIButton(type: .system)
+        button.setTitle("Generate password", for: .normal)
         button.addTarget(self, action: #selector(buttonPressedForGenerate), for: .touchUpInside)
         button.titleLabel?.font = UIFont.systemFont(ofSize: 25)
+        button.setTitleColor(.systemBlue, for: .normal)
         return button
     }()
 
     private lazy var label: UILabel = {
         let label = UILabel()
-        label.textColor = .systemBlue
-        label.font = UIFont.systemFont(ofSize: 30)
+        label.textColor = .black
+        label.text = "Привет!"
+        label.textAlignment = .center
+        label.font = UIFont.systemFont(ofSize: 20)
         return label
     }()
 
     private lazy var textField: UITextField = {
         let textField = UITextField()
         textField.isSecureTextEntry = true
+        textField.borderStyle = .roundedRect
         return textField
-    }()
-
-    private lazy var stack: UIStackView = {
-        let stack = UIStackView()
-        return stack
     }()
 
     // MARK: - Lifecycle -
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .black
+        view.backgroundColor = .white
         setupHierarchy()
         setupLayout()
-        
-//        self.bruteForce(passwordToUnlock: "1!gr")
-        
+
+
         // Do any additional setup after loading the view.
     }
 
     // MARK: - Setup and Layout -
 
     private func setupHierarchy() {
-        stack.addSubview(buttonGeneratePassowrd)
-        stack.addSubview(label)
-        stack.addSubview(textField)
-        view.addSubview(stack)
+        view.addSubview(buttonGeneratePassowrd)
+        view.addSubview(label)
+        view.addSubview(textField)
+        view.addSubview(buttonChangeColor)
     }
 
     private func setupLayout() {
-        stack.snp.makeConstraints { make in
-            make.center.equalTo(view)
-            make.top.equalTo(view.snp.top).offset(-50)
-        }
 
         label.snp.makeConstraints { make in
-            make.centerY.equalTo(stack)
+            make.centerX.centerY.equalToSuperview()
+            make.height.equalTo(40)
+            make.width.equalTo(150)
+//            make.top.equalTo(view).offset(200)
         }
 
         textField.snp.makeConstraints { make in
-            make.centerY.equalTo(stack)
-            make.width.equalTo(200)
+            make.centerX.equalToSuperview()
+            make.trailing.equalToSuperview().offset(-40)
+            make.leading.equalToSuperview().offset(40)
             make.height.equalTo(40)
-            make.top.equalTo(label.snp.bottom).offset(-10)
+            make.top.equalTo(label.snp.bottom).offset(10)
+        }
+//
+        buttonGeneratePassowrd.snp.makeConstraints { make in
+            make.centerX.equalToSuperview()
+            make.trailing.equalToSuperview().offset(-80)
+            make.leading.equalToSuperview().offset(80)
+            make.height.equalTo(40)
+            make.top.equalTo(textField.snp.bottom).offset(10)
         }
 
-        buttonGeneratePassowrd.snp.makeConstraints { make in
-            make.centerY.equalTo(stack)
-            make.top.equalTo(textField.snp.bottom).offset(-10)
+        buttonChangeColor.snp.makeConstraints { make in
+            make.centerX.equalToSuperview()
+            make.trailing.equalToSuperview().offset(-80)
+            make.leading.equalToSuperview().offset(80)
+            make.height.equalTo(40)
+            make.top.equalTo(buttonGeneratePassowrd.snp.bottom).offset(30)
         }
     }
 
     // MARK: - Action -
 
     @objc private func buttonPressedForGenerate() {
-
+        self.bruteForce(passwordToUnlock: textField.text ?? "")
     }
     
     func bruteForce(passwordToUnlock: String) {
@@ -104,12 +125,18 @@ class ViewController: UIViewController {
         var password: String = ""
 
         // Will strangely ends at 0000 instead of ~~~
-        while password != passwordToUnlock { // Increase MAXIMUM_PASSWORD_SIZE value for more
-            password = generateBruteForce(password, fromArray: ALLOWED_CHARACTERS)
-//             Your stuff here
-            print(password)
-            // Your stuff here
+        DispatchQueue.global().async {
+            while password != passwordToUnlock { // Increase MAXIMUM_PASSWORD_SIZE value for more
+                password = generateBruteForce(password, fromArray: ALLOWED_CHARACTERS)
+    //             Your stuff here
+                DispatchQueue.main.async {
+                    self.label.text = "Ваш пароль: \(password)"
+                }
+                print(password)
+                // Your stuff here
+            }
         }
+
         print(password)
     }
 }
