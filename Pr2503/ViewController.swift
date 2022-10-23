@@ -81,6 +81,8 @@ class ViewController: UIViewController {
 
         textField.snp.makeConstraints { make in
             make.centerY.equalTo(stack)
+            make.width.equalTo(200)
+            make.height.equalTo(40)
             make.top.equalTo(label.snp.bottom).offset(-10)
         }
 
