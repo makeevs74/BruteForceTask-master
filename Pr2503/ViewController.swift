@@ -1,14 +1,18 @@
 import UIKit
+import SnapKit
 
 class ViewController: UIViewController {
+
+// MARK: - Outlets -
+
     @IBOutlet weak var button: UIButton!
-    
-    var isBlack: Bool = false {
+
+    var isBlack: Bool = true {
         didSet {
             if isBlack {
-                self.view.backgroundColor = .black
-            } else {
                 self.view.backgroundColor = .white
+            } else {
+                self.view.backgroundColor = .black
             }
         }
     }
@@ -16,14 +20,80 @@ class ViewController: UIViewController {
     @IBAction func onBut(_ sender: Any) {
         isBlack.toggle()
     }
-    
+
+    private lazy var buttonGeneratePassowrd: UIButton = {
+        let button = UIButton()
+        button.titleLabel?.text = "Generate password"
+        button.addTarget(self, action: #selector(buttonPressedForGenerate), for: .touchUpInside)
+        button.titleLabel?.font = UIFont.systemFont(ofSize: 25)
+        return button
+    }()
+
+    private lazy var label: UILabel = {
+        let label = UILabel()
+        label.textColor = .systemBlue
+        label.font = UIFont.systemFont(ofSize: 30)
+        return label
+    }()
+
+    private lazy var textField: UITextField = {
+        let textField = UITextField()
+        textField.isSecureTextEntry = true
+        return textField
+    }()
+
+    private lazy var stack: UIStackView = {
+        let stack = UIStackView()
+        return stack
+    }()
+
+    // MARK: - Lifecycle -
+
     override func viewDidLoad() {
         super.viewDidLoad()
+        view.backgroundColor = .black
+        setupHierarchy()
+        setupLayout()
         
-        
-        self.bruteForce(passwordToUnlock: "1!gr")
+//        self.bruteForce(passwordToUnlock: "1!gr")
         
         // Do any additional setup after loading the view.
+    }
+
+    // MARK: - Setup and Layout -
+
+    private func setupHierarchy() {
+        stack.addSubview(buttonGeneratePassowrd)
+        stack.addSubview(label)
+        stack.addSubview(textField)
+        view.addSubview(stack)
+    }
+
+    private func setupLayout() {
+        stack.snp.makeConstraints { make in
+            make.center.equalTo(view)
+            make.top.equalTo(view.snp.top).offset(-50)
+        }
+
+        label.snp.makeConstraints { make in
+            make.centerY.equalTo(stack)
+        }
+
+        textField.snp.makeConstraints { make in
+            make.centerY.equalTo(stack)
+            make.top.equalTo(label.snp.bottom).offset(-10)
+        }
+
+        buttonGeneratePassowrd.snp.makeConstraints { make in
+            make.centerY.equalTo(stack)
+            make.top.equalTo(textField.snp.bottom).offset(-10)
+        }
+    }
+
+    // MARK: - Action -
+
+    @objc private func buttonPressedForGenerate() {
+
     }
     
     func bruteForce(passwordToUnlock: String) {
@@ -38,12 +108,9 @@ class ViewController: UIViewController {
             print(password)
             // Your stuff here
         }
-        
         print(password)
     }
 }
-
-
 
 extension String {
     var digits:      String { return "0123456789" }
@@ -52,8 +119,6 @@ extension String {
     var punctuation: String { return "!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~" }
     var letters:     String { return lowercase + uppercase }
     var printable:   String { return digits + letters + punctuation }
-
-
 
     mutating func replace(at index: Int, with character: Character) {
         var stringArray = Array(self)
@@ -85,7 +150,6 @@ func generateBruteForce(_ string: String, fromArray array: [String]) -> String {
             str = String(generateBruteForce(String(str.dropLast()), fromArray: array)) + String(str.last!)
         }
     }
-
     return str
 }
 
