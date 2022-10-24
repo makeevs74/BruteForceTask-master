@@ -9,45 +9,52 @@ class ViewController: UIViewController {
         let button = UIButton(type: .system)
         button.setTitle("Change color", for: .normal)
         button.addTarget(self, action: #selector(onBut), for: .touchUpInside)
-        button.titleLabel?.font = UIFont.systemFont(ofSize: 25)
+        button.titleLabel?.font = UIFont.systemFont(ofSize: 20)
         button.setTitleColor(.systemBlue, for: .normal)
+        button.backgroundColor = .systemGray4
+        button.layer.cornerRadius = 20
+
         return button
     }()
 
     var isBlack: Bool = true {
         didSet {
             if isBlack {
-                self.view.backgroundColor = .white
+                self.view.backgroundColor = .orange
                 self.label.textColor = .black
                 self.textField.backgroundColor = .white
             } else {
-                self.view.backgroundColor = .black
+                self.view.backgroundColor = .systemGreen
                 self.label.textColor = .white
-                self.textField.backgroundColor = .black
-                self.textField.borderStyle = .line
+                self.textField.backgroundColor = .white
+                self.textField.borderStyle = .roundedRect
+                makeShadow(button: buttonChangeColor)
+                makeShadow(button: buttonGuessPassword)
             }
         }
     }
-    
-    @objc func onBut() {
-        isBlack.toggle()
-    }
 
-    private lazy var buttonGeneratePassowrd: UIButton = {
+    private lazy var buttonGuessPassword: UIButton = {
         let button = UIButton(type: .system)
-        button.setTitle("Generate password", for: .normal)
+        button.setTitle("Guess password", for: .normal)
         button.addTarget(self, action: #selector(buttonPressedForGenerate), for: .touchUpInside)
-        button.titleLabel?.font = UIFont.systemFont(ofSize: 25)
+        button.titleLabel?.font = UIFont.systemFont(ofSize: 20)
         button.setTitleColor(.systemBlue, for: .normal)
+        button.backgroundColor = .systemGray4
+        button.layer.cornerRadius = 20
         return button
     }()
 
     private lazy var label: UILabel = {
         let label = UILabel()
         label.textColor = .black
-        label.text = "Привет!"
+        label.text = "Create a password"
+        label.layer.shadowColor = UIColor.gray.cgColor
+        label.layer.shadowOpacity = 0.3
+        label.layer.shadowOffset = CGSize(width: 2, height: 5)
+        label.layer.shadowRadius = 10
         label.textAlignment = .center
-        label.font = UIFont.systemFont(ofSize: 20)
+        label.font = UIFont.systemFont(ofSize: 22)
         return label
     }()
 
@@ -55,6 +62,8 @@ class ViewController: UIViewController {
         let textField = UITextField()
         textField.isSecureTextEntry = true
         textField.borderStyle = .roundedRect
+        textField.backgroundColor = .systemGray5
+        textField.textAlignment = .center
         return textField
     }()
 
@@ -62,18 +71,17 @@ class ViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .white
+        view.backgroundColor = .orange
         setupHierarchy()
         setupLayout()
-
-
-        // Do any additional setup after loading the view.
+        makeShadow(button: buttonChangeColor)
+        makeShadow(button: buttonGuessPassword)
     }
 
     // MARK: - Setup and Layout -
 
     private func setupHierarchy() {
-        view.addSubview(buttonGeneratePassowrd)
+        view.addSubview(buttonGuessPassword)
         view.addSubview(label)
         view.addSubview(textField)
         view.addSubview(buttonChangeColor)
@@ -82,26 +90,26 @@ class ViewController: UIViewController {
     private func setupLayout() {
 
         label.snp.makeConstraints { make in
-            make.centerX.centerY.equalToSuperview()
+            make.centerX.equalToSuperview()
+            make.centerY.equalToSuperview().offset(-100)
             make.height.equalTo(40)
-            make.width.equalTo(150)
-//            make.top.equalTo(view).offset(200)
+            make.width.equalTo(350)
         }
 
         textField.snp.makeConstraints { make in
             make.centerX.equalToSuperview()
-            make.trailing.equalToSuperview().offset(-40)
-            make.leading.equalToSuperview().offset(40)
+            make.trailing.equalToSuperview().offset(-80)
+            make.leading.equalToSuperview().offset(80)
             make.height.equalTo(40)
             make.top.equalTo(label.snp.bottom).offset(10)
         }
-//
-        buttonGeneratePassowrd.snp.makeConstraints { make in
+
+        buttonGuessPassword.snp.makeConstraints { make in
             make.centerX.equalToSuperview()
             make.trailing.equalToSuperview().offset(-80)
             make.leading.equalToSuperview().offset(80)
             make.height.equalTo(40)
-            make.top.equalTo(textField.snp.bottom).offset(10)
+            make.top.equalTo(textField.snp.bottom).offset(20)
         }
 
         buttonChangeColor.snp.makeConstraints { make in
@@ -109,7 +117,7 @@ class ViewController: UIViewController {
             make.trailing.equalToSuperview().offset(-80)
             make.leading.equalToSuperview().offset(80)
             make.height.equalTo(40)
-            make.top.equalTo(buttonGeneratePassowrd.snp.bottom).offset(30)
+            make.top.equalTo(buttonGuessPassword.snp.bottom).offset(20)
         }
     }
 
@@ -117,6 +125,10 @@ class ViewController: UIViewController {
 
     @objc private func buttonPressedForGenerate() {
         self.bruteForce(passwordToUnlock: textField.text ?? "")
+    }
+
+    @objc func onBut() {
+        isBlack.toggle()
     }
     
     func bruteForce(passwordToUnlock: String) {
@@ -130,14 +142,22 @@ class ViewController: UIViewController {
                 password = generateBruteForce(password, fromArray: ALLOWED_CHARACTERS)
     //             Your stuff here
                 DispatchQueue.main.async {
-                    self.label.text = "Ваш пароль: \(password)"
+                    self.label.text = "Your passowrd is: \(password)"
                 }
                 print(password)
                 // Your stuff here
             }
         }
-
         print(password)
+    }
+
+    func makeShadow(button: UIButton) {
+        button.layer.shadowColor = UIColor.black.cgColor
+        button.layer.shadowOpacity = 0.3
+        button.layer.shadowOffset = CGSize(width: 2, height: 5)
+        button.layer.shadowRadius = 10
+        button.layer.shouldRasterize = true
+        button.layer.rasterizationScale = UIScreen.main.scale
     }
 }
 
